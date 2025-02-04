@@ -2,19 +2,21 @@
 {
     internal class Program
     {
-        static void Main(string[] args)
-        {
-            int[] deck = new int[52];
+        static int[] deck = new int[52];
 
+        static void Initialize()
+        {
             for (int i = 0; i < deck.Length; i++)
             {
                 deck[i] = i + 1;
             }
+        }
 
-            //Shuffle
+        static void Shuffle()
+        {
             Random random = new Random();
 
-            for(int i = 0; i < deck.Length; i++)
+            for (int i = 0; i < deck.Length; i++)
             {
                 int firstCardIndex = random.Next(0, deck.Length);
                 int secondCardIndex = random.Next(0, deck.Length);
@@ -23,9 +25,11 @@
                 deck[firstCardIndex] = deck[secondCardIndex];
                 deck[secondCardIndex] = temp;
             }
-            
-            //Print
-            for(int i = 0; i < 8; i++)
+        }
+
+        static void Print()
+        {
+            for (int i = 0; i < 8; i++)
             {
                 //모양 정하기
                 if ((deck[i] - 1) / 13 == 0)
@@ -69,6 +73,14 @@
 
 
             }
+        }
+        static void Main(string[] args)
+        {
+            Initialize();
+            //Shuffle
+            Shuffle();
+            //Print
+            Print();
 
 
         }
