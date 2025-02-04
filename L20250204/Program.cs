@@ -1,10 +1,11 @@
-﻿namespace L20250204
+﻿using System.Net;
+
+namespace L20250204
 {
     internal class Program
     {
-        static int[] deck = new int[52];
 
-        static void Initialize()
+        static void Initialize(int[] deck)
         {
             for (int i = 0; i < deck.Length; i++)
             {
@@ -12,7 +13,7 @@
             }
         }
 
-        static void Shuffle()
+        static void Shuffle(int[] deck)
         {
             Random random = new Random();
 
@@ -27,62 +28,144 @@
             }
         }
 
-        static void Print()
+        enum CardType
         {
-            for (int i = 0; i < 8; i++)
+            None = -1,
+            Heart = 0,
+            Diamond = 1,
+            Clover = 2,
+            Spade = 3,
+
+            
+        }
+
+        static CardType CheckCardType(int cardNumber)
+        {
+            int valueType = (cardNumber - 1) / 13;
+            CardType returnCardType = CardType.None;
+            return (CardType)valueType;
+            //switch((CardType)valueType)
+            //{
+            //    case CardType.Heart:
+            //        returnCardType = CardType.Heart;
+            //        break;
+            //    case CardType.Diamond:
+            //        returnCardType = CardType.Diamond;
+            //        break;
+            //    case CardType.Clover:
+            //        returnCardType = CardType.Clover;
+            //        break;
+            //    case CardType.Spade:
+            //        returnCardType =  CardType.Spade;
+            //        break;
+            //    default:
+            //        returnCardType = CardType.None;
+            //        break;
+            //}
+           
+        }
+
+        static string CheckCardName(int cardNumber)
+        {
+            int cardValue = ((cardNumber - 1) % 13 ) + 1;
+            string cardName;
+            switch (cardValue)
             {
-                //모양 정하기
-                if ((deck[i] - 1) / 13 == 0)
+                case 1:
+                    cardName = "A";
+                    break;
+                case 11:
+                    cardName = "J";
+                    break;
+                case 12:
+                    cardName = "Q";
+                    break;
+                case 13:
+                    cardName = "K";
+                    break;
+                default:
+                    cardName = cardValue.ToString();
+                    break;
+            }
+
+            return cardName;
+        }
+
+        static int CalculateScore(int[] deck, int startIndex, int lastIndex)
+        {
+            int score = 0;
+            for(int i = startIndex; i < lastIndex; i++)
+            {
+                int cardScore = ((deck[i] - 1) % 13) + 1;
+                if (cardScore > 10)
                 {
-                    Console.Write("♥");
-                }
-                else if ((deck[i] - 1) / 13 == 1)
-                {
-                    Console.Write("◆");
-                }
-                else if ((deck[i] - 1) / 13 == 2)
-                {
-                    Console.Write("♣");
+                    score += 11;
                 }
                 else
                 {
-                    Console.Write("♠");
+                    score +=  cardScore;
                 }
+            }
+            return score;
+            
+        }
 
-                //숫자 및 AJQK정하기
-                if (deck[i] % 13 == 1)
-                {
-                    Console.WriteLine("A");
-                }
-                else if (deck[i] % 13 == 11)
-                {
-                    Console.WriteLine("J");
-                }
-                else if (deck[i] % 13 == 12)
-                {
-                    Console.WriteLine("Q");
-                }
-                else if (deck[i] % 13 == 0)
-                {
-                    Console.WriteLine("K");
-                }
-                else
-                {
-                    Console.WriteLine(deck[i] % 13);
-                }
+        
 
+        static void Print(int[] deck)
+        {
+            int computerScore = CalculateScore(deck, 0, 3);
+            int playerScore = CalculateScore(deck, 3, 6);
+
+            Console.WriteLine("컴퓨터 카드");
+            for(int i = 0; i < 3; i++)
+            {
+                Console.WriteLine($"{CheckCardType(deck[i]).ToString()} {CheckCardName(deck[i])} {deck[i]}") ;
 
             }
+            Console.WriteLine($"컴퓨터 점수 : {computerScore}");
+            Console.WriteLine("-------------------------");
+            Console.WriteLine("내 카드");
+            for (int i = 3; i < 6; i++)
+            {
+                Console.WriteLine($"{CheckCardType(deck[i]).ToString()} {CheckCardName(deck[i])} {deck[i]}");
+
+            }
+            Console.WriteLine($"내 점수 : {playerScore}");
+            Console.WriteLine("-------------------------");
+
+            if(computerScore > 21 && playerScore <= 21)
+            {
+                Console.WriteLine("플레이어 승리");
+            }
+            else if(playerScore > 21 && computerScore <= 21)
+            {
+                Console.WriteLine("컴퓨터 승리");
+            }
+            else if(playerScore >= computerScore)
+            {
+                
+                Console.WriteLine("플레이어 승리");
+            }
+            else
+            {
+                Console.WriteLine("컴퓨터 승리");
+            }
         }
+
+
         static void Main(string[] args)
         {
-            Initialize();
+            int[] deck = new int[52];
+
+            Initialize(deck);
             //Shuffle
-            Shuffle();
+            Shuffle(deck);
+
             //Print
-            Print();
+            Print(deck);
 
-
+            
         }
     }
 }
