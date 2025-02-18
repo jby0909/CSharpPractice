@@ -156,15 +156,30 @@ namespace L20250204
 
         static void Main(string[] args)
         {
-            int[] deck = new int[52];
+            //int[] deck = new int[52];
 
-            Initialize(deck);
-            //Shuffle
-            Shuffle(deck);
+            //Initialize(deck);
+            ////Shuffle
+            //Shuffle(deck);
 
-            //Print
-            Print(deck);
+            ////Print
+            //Print(deck);
 
+            string name = "Hello";
+            string message = String.Format("{0}님 {1}안녕안녕하세요",name, 1);
+            string data = "a10, 20, 30, 40";
+
+            string[] datas = data.Split(",");
+
+            for(int i = 0; i < datas.Length; i++)
+            {
+                Console.WriteLine(datas[i].Trim());
+            }
+
+            int a = 2;
+            float b = 3.5f;
+            float.TryParse(datas[0],out b);
+            
             
         }
     }
