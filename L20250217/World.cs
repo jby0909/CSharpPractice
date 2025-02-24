@@ -8,18 +8,25 @@ namespace L20250217
 {
     public class World
     {
-        public GameObject[] gameObjects = new GameObject[100];
-        int useGameObjectCount = 0;
+        //DynamicArray 
+        List<GameObject> gameObjects = new List<GameObject>();
+        public List<GameObject> GetAllGameObjects
+        {
+            get
+            {
+                return gameObjects;
+            }
+        }
 
         public void Instantiate(GameObject gameObject)
         {
-            gameObjects[useGameObjectCount] = gameObject;
-            useGameObjectCount++;
+            gameObjects.Add(gameObject);
+           
         }
 
         public void Update()
         {
-            for (int i = 0; i < gameObjects.Length; i++)
+            for (int i = 0; i < gameObjects.Count; i++)
             {
                 gameObjects[i].Update();
             }
@@ -27,12 +34,29 @@ namespace L20250217
 
         public void Render()
         {
-            for (int i = 0; i < gameObjects.Length; i++)
+            for (int i = 0; i < gameObjects.Count; i++)
             {
                 gameObjects[i].Render();
             }
         }
 
+
+        public void Sort()
+        {
+            //gameObjects.Sort();
+            for (int i = 0; i < gameObjects.Count; i++)
+            {
+                for(int j = i+1; j < gameObjects.Count; j++)
+                {
+                    if (gameObjects[i].orderLayer - gameObjects[j].orderLayer > 0)
+                    {
+                        GameObject temp = gameObjects[i];
+                        gameObjects[i] = gameObjects[j];
+                        gameObjects[j] = temp;
+                    }
+                }
+            }
+        }
         
     }
 }
