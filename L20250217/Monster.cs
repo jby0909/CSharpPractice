@@ -9,6 +9,8 @@ namespace L20250217
     public class Monster : GameObject
     {
         private Random rand = new Random();
+
+        private float elpasedTime = 0;
         public Monster(int inX, int inY, char inShape)
         {
             X = inX;
@@ -20,37 +22,41 @@ namespace L20250217
 
         public override void Update()
         {
-            int Direction = rand.Next() % 4;
-            if (Direction == 0)
+            if(elpasedTime > 0.005f)
             {
-                if (!PredictCollision(X, Y - 1))
+                elpasedTime = 0.0f;
+                int Direction = rand.Next() % 4;
+                if (Direction == 0)
                 {
-                    Y--;
+                    if (!PredictCollision(X, Y - 1))
+                    {
+                        Y--;
+                    }
+                }
+                else if (Direction == 1)
+                {
+                    if (!PredictCollision(X, Y + 1))
+                    {
+                        Y++;
+                    }
+                }
+                else if (Direction == 2)
+                {
+                    if (!PredictCollision(X - 1, Y))
+                    {
+                        X--;
+                    }
+                }
+                else if (Direction == 3)
+                {
+                    if (!PredictCollision(X + 1, Y))
+                    {
+                        X++;
+                    }
                 }
             }
-            else if (Direction == 1)
-            {
-                if (!PredictCollision(X, Y + 1))
-                {
-                    Y++;
-                }
-            }
-            else if (Direction == 2)
-            {
-                if (!PredictCollision(X - 1, Y))
-                {
-                    X--;
-                }
-            }
-            else if (Direction == 3)
-            {
-                if (!PredictCollision(X + 1, Y))
-                {
-                    X++;
-                }
-            }
-
-
+            elpasedTime += Time.deltaTime;
+            
 
         }
     }

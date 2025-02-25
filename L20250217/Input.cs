@@ -21,7 +21,20 @@ namespace L20250217
 
         static public void Process()
         {
-            keyInfo = Console.ReadKey();
+            //키입력이 있는지
+            if(Console.KeyAvailable)
+            {
+                //키 입력이 있으면 입력받음
+                //(true)넣으면 내가 입력한 값이 화면에 그려지지 않는다
+                keyInfo = Console.ReadKey(true);
+            }
+            
+        }
+
+        public static void ClearInput()
+        {
+            //한번 누를 때마다 초기화(기존에 누른 키가 계속 저장되어있는걸 방지)
+            keyInfo = new ConsoleKeyInfo();
         }
     }
 }

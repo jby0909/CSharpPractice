@@ -16,6 +16,11 @@ namespace L20250217
 
         static protected Engine instance;
 
+        //더블 버퍼링
+        static public char[,] backBuffer = new char[20,40];
+        static public char[,] frontBuffer = new char[20, 40];
+
+
         static public Engine Instance
         {
             get
@@ -117,17 +122,54 @@ namespace L20250217
 
         protected void Render()
         {
-            Console.Clear();
+            //IO 제일 느림, 모니터 출력, 메모리
+            //화면 지우는것도 느려지므로 뺀다
+            //Console.Clear();
             world.Render();
+
+            //메모리에 있는걸 한방에 붙여줌
+            //back <-> front (flip)
+            for(int Y = 0; Y < 20; Y++)
+            {
+                for(int X = 0; X < 40; X++)
+                {
+                    if (frontBuffer[Y, X] != backBuffer[Y, X])
+                    {
+                        frontBuffer[Y, X] = backBuffer[Y, X];
+                        Console.SetCursorPosition(X, Y);
+                        Console.Write(frontBuffer[Y, X]);
+                    }
+
+                    //Console.SetCursorPosition(X, Y);
+                    //Console.Write(backBuffer[Y, X]);
+                }
+            }
         }
+
+
 
         internal void Run()
         {
+            float frameTime = 1000.0f / 60.0f;
+            float elpaseTime = 0.0f;
+            //마우스 커서 깜박이는거 끄기
+            Console.CursorVisible = false;
             while(isRunning)
             {
-                InputProcess();
-                Update();
-                Render();
+                Time.Update();
+                if (elpaseTime >= frameTime)
+                {
+                    InputProcess();
+                    Update();
+                    Render();
+                    Input.ClearInput();
+                    elpaseTime = 0;
+                }
+                else
+                {
+                    elpaseTime += Time.deltaTime;
+                }
+
             }
         }
 
