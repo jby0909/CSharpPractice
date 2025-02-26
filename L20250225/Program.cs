@@ -1,8 +1,9 @@
 ﻿using System.Collections;
+using System.ComponentModel;
 
 namespace L20250225
 {
-    public class DynamicArray<T> : IEnumerable
+    public class DynamicArray<T> : IEnumerable<T>, IEnumerable
     {
         protected T[] arr;
         protected int count;
@@ -101,29 +102,22 @@ namespace L20250225
             }
         }
 
-        
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
+        {
+            for (int i = 0; i < count; i++)
+            {
+                yield return arr[i];
+            }
+        }
     }
 
-
+   
     internal class Program
     {
-        static int[] data = { 1, 2, 3, 4, 5 };
-        static int Current = 0;
-
-        static IEnumerable GetNumbers()
-        {
-            while(Current < data.Length)
-            {
-                yield return data[Current++];
-            }
-            
-            
-        }
+        
 
         static void Main(string[] args)
         {
-            
-
             DynamicArray<int> dynamicArr = new DynamicArray<int>();
             dynamicArr.Add(1);
             dynamicArr.Add(2);
@@ -138,8 +132,9 @@ namespace L20250225
 
             dynamicArr.RemoveAt(0);
             dynamicArr.RemoveAt(5);
-            
-            foreach(var value in dynamicArr)
+
+
+            foreach(var value in dynamicArr /*for dynamicArr.GetEnumerator()*/)
             {
                 Console.WriteLine(value);
             }
