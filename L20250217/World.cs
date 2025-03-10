@@ -28,7 +28,10 @@ namespace L20250217
         {
             for (int i = 0; i < gameObjects.Count; i++)
             {
-                gameObjects[i].Update();
+                foreach(Component component in gameObjects[i].components)
+                {
+                    component.Update();
+                }
             }
         }
 
@@ -36,26 +39,30 @@ namespace L20250217
         {
             for (int i = 0; i < gameObjects.Count; i++)
             {
-                gameObjects[i].Render();
+                SpriteRenderer spriteRender = gameObjects[i].GetComponent<SpriteRenderer>();
+                if(spriteRender != null)
+                {
+                    spriteRender.Render();
+                }
             }
         }
 
 
         public void Sort()
         {
-            //gameObjects.Sort();
-            for (int i = 0; i < gameObjects.Count; i++)
-            {
-                for(int j = i+1; j < gameObjects.Count; j++)
-                {
-                    if (gameObjects[i].orderLayer - gameObjects[j].orderLayer > 0)
-                    {
-                        GameObject temp = gameObjects[i];
-                        gameObjects[i] = gameObjects[j];
-                        gameObjects[j] = temp;
-                    }
-                }
-            }
+        //    //gameObjects.Sort();
+        //    for (int i = 0; i < gameObjects.Count; i++)
+        //    {
+        //        for(int j = i+1; j < gameObjects.Count; j++)
+        //        {
+        //            if (gameObjects[i].orderLayer - gameObjects[j].orderLayer > 0)
+        //            {
+        //                GameObject temp = gameObjects[i];
+        //                gameObjects[i] = gameObjects[j];
+        //                gameObjects[j] = temp;
+        //            }
+        //        }
+        //    }
         }
         
     }

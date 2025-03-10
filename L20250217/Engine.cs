@@ -1,7 +1,9 @@
-﻿using System;
+﻿using SDL2;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -34,6 +36,52 @@ namespace L20250217
         }
 
         protected bool isRunning = true;
+
+        public IntPtr myWindow;
+        public IntPtr myRenderer;
+        public SDL.SDL_Event myEvent;
+        public bool Init()
+        {
+            //Unity 초기화
+            //하드웨어 모든 장비를 초기화한게 0 이하면
+            if (SDL.SDL_Init(SDL.SDL_INIT_EVERYTHING) < 0)
+            {
+                //에러표시
+                Console.WriteLine("Fail Init.");
+                return false;
+            }
+
+
+            //설정 파일 읽어오기
+
+            //Unity 창만들기
+            //창만들고(메모리에 공간 생성)
+            myWindow = SDL.SDL_CreateWindow(
+                "Gane",
+                100, 100,
+                640, 480,
+                SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN); // window shown : 윈도우 보여달라는 뜻. 이부분 없으면 윈도우창이 보이지 않는다.
+
+            //붓(renderer)
+            myRenderer = SDL.SDL_CreateRenderer(myWindow, -1, SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED |
+                SDL.SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC |
+                SDL.SDL_RendererFlags.SDL_RENDERER_TARGETTEXTURE);
+
+
+            return true;
+        }
+
+        public bool Quit()
+        {
+            SDL.SDL_DestroyRenderer(myRenderer);
+            //Unity종료
+            //창 지우기(메모리에서 지우기)
+            SDL.SDL_DestroyWindow(myWindow);
+
+            //라이브러리 열었으니? 지워야 한다?
+            SDL.SDL_Quit();
+            return true;
+        }
        
 
         public void Load(string filename)
@@ -87,12 +135,41 @@ namespace L20250217
                     }
                     else if (scene[y][x] == 'P')
                     {
-                        Player player = new Player(x, y, scene[y][x]);
+                        //Player player = new Player(x, y, scene[y][x]);
+                        //world.Instantiate(player);
+                        GameObject player = new GameObject();
+                        player.Name = "Player";
+                        player.transform.X = x;
+                        player.transform.Y = y;
+
+                        player.AddComponent<PlayerController>(new PlayerController());
+                        SpriteRenderer spriteRenderer = player.AddComponent<SpriteRenderer>(new SpriteRenderer());
+                        spriteRenderer.colorKey.r = 255;
+                        spriteRenderer.colorKey.g = 0;
+                        spriteRenderer.colorKey.b = 255;
+                        spriteRenderer.colorKey.a = 255;
+                        spriteRenderer.LoadBmp("player.bmp", true);
+                        
+                        spriteRenderer.Shape = 'P';
+
                         world.Instantiate(player);
                     }
                     else if (scene[y][x] == 'M')
                     {
-                        Monster monster = new Monster(x, y, scene[y][x]);
+                        GameObject monster = new GameObject();
+                        monster.Name = "Monster";
+                        monster.transform.X = x;
+                        monster.transform.Y = y;
+
+                        SpriteRenderer spriteRenderer = monster.AddComponent<SpriteRenderer>(new SpriteRenderer());
+                        spriteRenderer.colorKey.r = 255;
+                        spriteRenderer.colorKey.g = 255;
+                        spriteRenderer.colorKey.b = 255;
+                        spriteRenderer.colorKey.a = 255;
+                        spriteRenderer.LoadBmp("monster.bmp");
+
+                        spriteRenderer.Shape = 'M';
+
                         world.Instantiate(monster);
                     }
                     else if (scene[y][x] == 'G')
@@ -122,14 +199,18 @@ namespace L20250217
 
         protected void Render()
         {
+            SDL.SDL_SetRenderDrawColor(myRenderer, 0, 0, 0, 0); //붓 색깔 지정
+            SDL.SDL_RenderClear(myRenderer); //해당 붓 색깔로 화면 지우기
+
             //IO 제일 느림, 모니터 출력, 메모리
             //화면 지우는것도 느려지므로 뺀다
             //Console.Clear();
             world.Render();
+           
 
             //메모리에 있는걸 한방에 붙여줌
             //back <-> front (flip)
-            for(int Y = 0; Y < 20; Y++)
+            for (int Y = 0; Y < 20; Y++)
             {
                 for(int X = 0; X < 40; X++)
                 {
@@ -144,36 +225,35 @@ namespace L20250217
                     //Console.Write(backBuffer[Y, X]);
                 }
             }
+            SDL.SDL_RenderPresent(myRenderer);
         }
 
 
 
         internal void Run()
         {
-            float frameTime = 1000.0f / 60.0f;
-            float elpaseTime = 0.0f;
-            //마우스 커서 깜박이는거 끄기
+
             Console.CursorVisible = false;
-            while(isRunning)
+
+            while (isRunning)
             {
+                SDL.SDL_PollEvent(out myEvent);
+
                 Time.Update();
-                if (elpaseTime >= frameTime)
+
+                switch (myEvent.type)
                 {
-                    InputProcess();
-                    Update();
-                    Render();
-                    Input.ClearInput();
-                    elpaseTime = 0;
-                }
-                else
-                {
-                    elpaseTime += Time.deltaTime;
+                    case SDL.SDL_EventType.SDL_QUIT:
+                        isRunning = false;
+                        break;
+                    
                 }
 
+                Update();
+                Render();
             }
         }
 
-       
 
         public World world;
     }

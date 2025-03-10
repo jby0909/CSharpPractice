@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Reflection;
+using System.Text;
 
 namespace L20250217
 {
@@ -30,12 +31,16 @@ namespace L20250217
             }
         }
 
+        
+
         static void Main(string[] args)
         {
-
+            Engine.Instance.Init();
 
             Engine.Instance.Load("level01.map");
             Engine.Instance.Run();
+
+            Engine.Instance.Quit();
 
             //StreamReader sr = null;
             //try
