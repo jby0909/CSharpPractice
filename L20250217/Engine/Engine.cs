@@ -5,6 +5,7 @@ using System.ComponentModel.Design;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace L20250217
@@ -21,6 +22,8 @@ namespace L20250217
         //더블 버퍼링
         static public char[,] backBuffer = new char[20,40];
         static public char[,] frontBuffer = new char[20, 40];
+
+        public World world;
 
 
         static public Engine Instance
@@ -40,6 +43,10 @@ namespace L20250217
         public IntPtr myWindow;
         public IntPtr myRenderer;
         public SDL.SDL_Event myEvent;
+
+        public IntPtr Font;
+
+
         public bool Init()
         {
             //Unity 초기화
@@ -67,12 +74,23 @@ namespace L20250217
                 SDL.SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC |
                 SDL.SDL_RendererFlags.SDL_RENDERER_TARGETTEXTURE);
 
+            string projectFolder = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
+            SDL_ttf.TTF_Init();
+            //SDL_ttf.TTF_OpenFont(projectFolder + "/data/", 30);
+            Font = SDL_ttf.TTF_OpenFont("c:/Windows/Fonts/gulim.ttc", 30);
+
+            world = new World();
+
 
             return true;
         }
 
         public bool Quit()
         {
+            isRunning = false;
+
+            SDL_ttf.TTF_Quit();
+
             SDL.SDL_DestroyRenderer(myRenderer);
             //Unity종료
             //창 지우기(메모리에서 지우기)
@@ -80,6 +98,7 @@ namespace L20250217
 
             //라이브러리 열었으니? 지워야 한다?
             SDL.SDL_Quit();
+
             return true;
         }
        
@@ -111,12 +130,12 @@ namespace L20250217
                 scene.Add(sr.ReadLine());
             }
             sr.Close();
-           
-           
+
+
+            
 
 
 
-            world = new World();
 
             for (int y = 0; y < scene.Count; y++)
             {
@@ -124,14 +143,28 @@ namespace L20250217
                 {
                     if(scene[y][x] == '*')
                     {
-                        Wall wall = new Wall(x, y, scene[y][x]);
+                        GameObject wall = new GameObject();
+                        wall.Name = "Wall";
+                        wall.transform.X = x;
+                        wall.transform.Y = y;
+
+                        SpriteRenderer spriteRenderer = wall.AddComponent(new SpriteRenderer());
+                        spriteRenderer.colorKey.r = 255;
+                        spriteRenderer.colorKey.g = 255;
+                        spriteRenderer.colorKey.b = 255;
+                        spriteRenderer.colorKey.a = 255;
+                        spriteRenderer.LoadBmp("wall.bmp");
+                        spriteRenderer.orderLayer = 2;
+
+                        spriteRenderer.Shape = '*';
+
+                        wall.AddComponent<BoxCollider2D>();
                         world.Instantiate(wall);
-                        
+
                     }
                     else if (scene[y][x] == ' ')
                     {
-                        //Floor floor = new Floor(x, y, scene[y][x]);
-                        //world.Instantiate(floor);
+                       
                     }
                     else if (scene[y][x] == 'P')
                     {
@@ -143,14 +176,18 @@ namespace L20250217
                         player.transform.Y = y;
 
                         player.AddComponent<PlayerController>(new PlayerController());
-                        SpriteRenderer spriteRenderer = player.AddComponent<SpriteRenderer>(new SpriteRenderer());
+                        SpriteRenderer spriteRenderer = player.AddComponent<SpriteRenderer>();
                         spriteRenderer.colorKey.r = 255;
                         spriteRenderer.colorKey.g = 0;
                         spriteRenderer.colorKey.b = 255;
                         spriteRenderer.colorKey.a = 255;
                         spriteRenderer.LoadBmp("player.bmp", true);
-                        
+                        spriteRenderer.orderLayer = 3;
+
                         spriteRenderer.Shape = 'P';
+
+                        CharacterController2D charcterController2D = player.AddComponent<CharacterController2D>();
+                        
 
                         world.Instantiate(player);
                     }
@@ -167,24 +204,74 @@ namespace L20250217
                         spriteRenderer.colorKey.b = 255;
                         spriteRenderer.colorKey.a = 255;
                         spriteRenderer.LoadBmp("monster.bmp");
+                        spriteRenderer.orderLayer = 4;
 
                         spriteRenderer.Shape = 'M';
+
+                        monster.AddComponent<AIController>(new AIController());
+                        CharacterController2D characterController2D = monster.AddComponent<CharacterController2D>();
+                        characterController2D.isTrigger = true;
 
                         world.Instantiate(monster);
                     }
                     else if (scene[y][x] == 'G')
                     {
-                        Goal goal = new Goal(x, y, scene[y][x]);
+                        GameObject goal = new GameObject();
+                        goal.Name = "Goal";
+                        goal.transform.X = x;
+                        goal.transform.Y = y;
+
+                        SpriteRenderer spriteRenderer = goal.AddComponent(new SpriteRenderer());
+                        spriteRenderer.colorKey.r = 255;
+                        spriteRenderer.colorKey.g = 255;
+                        spriteRenderer.colorKey.b = 255;
+                        spriteRenderer.colorKey.a = 255;
+                        spriteRenderer.LoadBmp("goal.bmp");
+                        spriteRenderer.orderLayer = 2;
+
+
+                        spriteRenderer.Shape = 'G';
+
+                        goal.AddComponent<CharacterController2D>().isTrigger = true;
+
                         world.Instantiate(goal);
                     }
-                    Floor floor = new Floor(x, y, ' ');
+                    GameObject floor = new GameObject();
+                    floor.Name = "Floor";
+                    floor.transform.X = x;
+                    floor.transform.Y = y;
+
+                    SpriteRenderer spriteRenderer2 = floor.AddComponent(new SpriteRenderer());
+                    spriteRenderer2.colorKey.r = 255;
+                    spriteRenderer2.colorKey.g = 255;
+                    spriteRenderer2.colorKey.b = 255;
+                    spriteRenderer2.colorKey.a = 255;
+                    spriteRenderer2.LoadBmp("floor.bmp");
+                    spriteRenderer2.orderLayer = 1;
+
+
+                    spriteRenderer2.Shape = ' ';
+
                     world.Instantiate(floor);
                 }
+
+                //심판 생성
+                GameObject gameManager = new GameObject();
+                gameManager.Name = "GameManager";
+
+                gameManager.AddComponent<GameManager>();
+                world.Instantiate(gameManager);
             }
 
             //loading complete
             //sort
             world.Sort();
+
+            Awake();
+        }
+        public void Awake()
+        {
+            world.Awake();
         }
 
         public void InputProcess()
@@ -254,7 +341,11 @@ namespace L20250217
             }
         }
 
+        public void SetSortCompare(World.SortCompare inSortCompare)
+        {
+            world.sortCompare = inSortCompare;
+        }
 
-        public World world;
+       
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace L20250217
 {
-    public class SpriteRenderer : Component
+    public class SpriteRenderer : Renderer
     {
         public char Shape; // Mesh, Sprite
         public SDL.SDL_Color color;
@@ -19,8 +19,8 @@ namespace L20250217
         protected IntPtr myTexture;
         protected IntPtr mySurface;
 
-        protected int spriteIndexX = 0;
-        protected int spriteIndexY = 0;
+        public int spriteIndexX = 0;
+        public int spriteIndexY = 0;
 
 
         public SDL.SDL_Color colorKey;
@@ -39,6 +39,10 @@ namespace L20250217
         public SpriteRenderer()
         {
 
+        }
+        ~SpriteRenderer()
+        {
+            SDL.SDL_DestroyTexture(myTexture);
         }
         public SpriteRenderer(string inFilename, bool inIsAnimation = false)
         {
@@ -103,7 +107,7 @@ namespace L20250217
             }
         }
 
-        public virtual void Render()
+        public override void Render()
         {
             int X = gameObject.transform.X;
             int Y = gameObject.transform.Y;

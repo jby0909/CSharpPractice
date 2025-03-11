@@ -6,18 +6,13 @@ using System.Threading.Tasks;
 
 namespace L20250217
 {
-    public class Character
+    public class Collider2D : Component
     {
-        public int X;
-        public int Y;
-
-        public void Move()
+        public bool isTrigger = false;
+        public override void Update()
         {
-
         }
-        public void Collide()
-        {
 
-        }
+
     }
 }
