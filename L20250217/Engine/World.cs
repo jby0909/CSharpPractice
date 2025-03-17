@@ -19,6 +19,10 @@ namespace L20250217
             {
                 return gameObjects;
             }
+            set
+            {
+                gameObjects = value;
+            }
         }
 
         public void Instantiate(GameObject gameObject)

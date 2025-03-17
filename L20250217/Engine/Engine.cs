@@ -1,10 +1,12 @@
-﻿using SDL2;
+﻿using Newtonsoft.Json;
+using SDL2;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -268,6 +270,31 @@ namespace L20250217
             world.Sort();
 
             Awake();
+
+            //string SceneFile = JsonConvert.SerializeObject(world.GetAllGameObjects, new JsonSerializerSettings
+            //{
+            //    //모두 
+            //    TypeNameHandling = TypeNameHandling.All,
+            //    //우리 코드에서 Component에서 GameObject를 부르고 GameObject에서 Component를 불러서 루프를 따라가는것을 무시함
+            //    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            //});
+            //Console.WriteLine(SceneFile);
+
+            //StreamWriter sw = new StreamWriter("sample.uasset");
+            //sw.WriteLine(SceneFile);
+            //sw.Close();
+
+            StreamReader sr2 = new StreamReader("sample.uasset");
+            string SceneFile = sr2.ReadToEnd();
+            sr.Close();
+
+            world.GetAllGameObjects = JsonConvert.DeserializeObject<List<GameObject>>(SceneFile, new JsonSerializerSettings
+            {
+                //모두 
+                TypeNameHandling = TypeNameHandling.All,
+                //우리 코드에서 Component에서 GameObject를 부르고 GameObject에서 Component를 불러서 루프를 따라가는것을 무시함
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            });
         }
         public void Awake()
         {
